@@ -14,6 +14,11 @@ epoch = 'latest'
 path = 'contracts/market.clar'
 clarity_version = 4
 epoch = 'latest'
+
+[contracts.market-factory]
+path = 'contracts/market-factory.clar'
+clarity_version = 4
+epoch = 'latest'
 [repl.analysis]
 passes = ['check_checker']
 
