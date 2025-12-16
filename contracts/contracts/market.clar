@@ -408,3 +408,40 @@
   )
 )
 
+;; Refund stakes after cancellation
+(define-public (refund-after-cancel (token <ft-trait>))
+  (let (
+    (yes-stake (get-user-stake tx-sender SIDE-YES))
+    (no-stake (get-user-stake tx-sender SIDE-NO))
+    (total-stake (+ yes-stake no-stake))
+  )
+    ;; Validations
+    (asserts! (is-eq (var-get current-state) STATE-CANCELED) ERR-INVALID-STATE)
+    (asserts! (not (has-claimed tx-sender)) ERR-ALREADY-CLAIMED)
+    (asserts! (> total-stake u0) ERR-NO-STAKE)
+    
+    ;; Mark as claimed
+    (map-set claimed tx-sender true)
+    
+    ;; Burn position tokens
+    (if (> yes-stake u0)
+      (try! (burn-position-token tx-sender u1 yes-stake))
+      true
+    )
+    (if (> no-stake u0)
+      (try! (burn-position-token tx-sender u2 no-stake))
+      true
+    )
+    
+    ;; Refund
+    (try! (as-contract (contract-call? token transfer total-stake tx-sender tx-sender none)))
+    
+    (print {
+      event: "refunded",
+      user: tx-sender,
+      amount: total-stake
+    })
+    
+    (ok total-stake)
+  )
+)
