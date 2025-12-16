@@ -1,14 +1,13 @@
-# Compiler files
-cache/
-out/
 
-# Ignores development broadcast logs
-!/broadcast
-/broadcast/*/31337/
-/broadcast/**/dry-run/
+**/settings/Mainnet.toml
+**/settings/Testnet.toml
+.cache/**
+history.txt
 
-# Docs
-docs/
-
-# Dotenv file
-.env
+logs
+*.log
+npm-debug.log*
+coverage
+*.info
+costs-reports.json
+node_modules
