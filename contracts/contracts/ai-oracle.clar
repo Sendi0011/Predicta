@@ -341,3 +341,11 @@
   )
 )
 
+;; Revoke admin role
+(define-public (revoke-admin (user principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get admin)) ERR-NOT-AUTHORIZED)
+    (map-delete admin-roles user)
+    (ok true)
+  )
+)
