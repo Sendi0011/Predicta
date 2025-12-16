@@ -123,3 +123,29 @@
   })
 )
 
+;; Public functions
+
+;; Initialize factory
+(define-public (initialize
+  (token principal)
+  (oracle principal)
+  (treasury-addr principal)
+  (implementation principal)
+  (admin-addr principal)
+)
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+    
+    (var-set token-contract token)
+    (var-set oracle-contract oracle)
+    (var-set treasury treasury-addr)
+    (var-set market-implementation implementation)
+    (var-set admin admin-addr)
+    
+    (map-set admin-roles admin-addr true)
+    (map-set creator-roles admin-addr true)
+    
+    (ok true)
+  )
+)
+
