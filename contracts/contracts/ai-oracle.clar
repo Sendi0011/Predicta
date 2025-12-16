@@ -312,3 +312,23 @@
   )
 )
 
+;; Remove authorized signer
+(define-public (remove-signer (signer principal))
+  (begin
+    (asserts! (has-admin-role tx-sender) ERR-NOT-AUTHORIZED)
+    (asserts! (is-authorized-signer signer) ERR-NOT-AUTHORIZED)
+    (asserts! (> (var-get signer-count) REQUIRED-CONFIRMATIONS) ERR-INVALID-RESULT)
+    
+    (map-set authorized-signers signer false)
+    (map-delete resolver-roles signer)
+    (var-set signer-count (- (var-get signer-count) u1))
+    
+    (print {
+      event: "signer-removed",
+      signer: signer
+    })
+    
+    (ok true)
+  )
+)
+
