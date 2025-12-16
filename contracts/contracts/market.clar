@@ -278,3 +278,20 @@
   )
 )
 
+;; Lock market after end time
+(define-public (lock-market)
+  (begin
+    (asserts! (>= block-height (var-get ends-at)) ERR-MARKET-NOT-ENDED)
+    (asserts! (is-eq (var-get current-state) STATE-ACTIVE) ERR-INVALID-STATE)
+    
+    (var-set current-state STATE-LOCKED)
+    
+    (print {
+      event: "market-locked",
+      timestamp: block-height
+    })
+    
+    (ok true)
+  )
+)
+
