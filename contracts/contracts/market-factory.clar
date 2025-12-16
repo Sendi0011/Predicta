@@ -88,3 +88,13 @@
   })
 )
 
+(define-read-only (get-creator-markets (creator principal) (offset uint) (limit uint))
+  (let (
+    (count (get-creator-market-count-internal creator))
+    (end (if (> (+ offset limit) count) count (+ offset limit)))
+  )
+    (ok (map get-creator-market-at-index 
+      (list offset)))
+  )
+)
+
