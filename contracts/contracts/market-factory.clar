@@ -79,3 +79,12 @@
   (ok (var-get total-markets-created))
 )
 
+(define-read-only (get-statistics)
+  (ok {
+    total-markets: (var-get total-markets-created),
+    total-volume: (var-get total-volume-usdc),
+    default-fee: (var-get default-fee-bp),
+    treasury: (var-get treasury)
+  })
+)
+
