@@ -248,3 +248,22 @@
   ))
 )
 
+;; Update market implementation
+(define-public (update-market-implementation (new-implementation principal))
+  (begin
+    (asserts! (is-admin tx-sender) ERR-NOT-AUTHORIZED)
+    
+    (let ((old-impl (var-get market-implementation)))
+      (var-set market-implementation new-implementation)
+      
+      (print {
+        event: "implementation-updated",
+        old: old-impl,
+        new: new-implementation
+      })
+      
+      (ok true)
+    )
+  )
+)
+
