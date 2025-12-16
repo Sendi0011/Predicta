@@ -111,3 +111,15 @@
   )
 )
 
+(define-read-only (get-config)
+  (ok {
+    token: (var-get token-contract),
+    oracle: (var-get oracle-contract),
+    treasury: (var-get treasury),
+    implementation: (var-get market-implementation),
+    default-fee-bp: (var-get default-fee-bp),
+    default-max-stake: (var-get default-max-stake-per-user),
+    default-max-pool: (var-get default-max-total-pool)
+  })
+)
+
