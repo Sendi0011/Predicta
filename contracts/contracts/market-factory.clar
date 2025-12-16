@@ -324,3 +324,32 @@
   )
 )
 
+;; Role management
+(define-public (add-creator (creator principal))
+  (begin
+    (asserts! (is-admin tx-sender) ERR-NOT-AUTHORIZED)
+    (map-set creator-roles creator true)
+    (ok true)
+  )
+)
+
+(define-public (remove-creator (creator principal))
+  (begin
+    (asserts! (is-admin tx-sender) ERR-NOT-AUTHORIZED)
+    (map-delete creator-roles creator)
+    (ok true)
+  )
+)
+
+(define-public (add-admin (new-admin principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get admin)) ERR-NOT-AUTHORIZED)
+    (map-set admin-roles new-admin true)
+    (ok true)
+  )
+)
+
+;; UTF8 to ASCII conversion helper
+(define-private (to-utf8 (str (string-ascii 50)))
+  (some (unwrap-panic (as-max-len? (concat u"" str) u100)))
+)
