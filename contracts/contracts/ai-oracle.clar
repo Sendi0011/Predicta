@@ -293,3 +293,22 @@
   )
 )
 
+;; Add authorized signer
+(define-public (add-signer (signer principal))
+  (begin
+    (asserts! (has-admin-role tx-sender) ERR-NOT-AUTHORIZED)
+    (asserts! (not (is-authorized-signer signer)) ERR-INVALID-RESULT)
+    
+    (map-set authorized-signers signer true)
+    (map-set resolver-roles signer true)
+    (var-set signer-count (+ (var-get signer-count) u1))
+    
+    (print {
+      event: "signer-added",
+      signer: signer
+    })
+    
+    (ok true)
+  )
+)
+
