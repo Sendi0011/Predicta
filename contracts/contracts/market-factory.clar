@@ -229,3 +229,22 @@
   )
 )
 
+;; Helper to hash market parameters
+(define-private (hash-market-params 
+  (question (string-utf8 500))
+  (category (string-ascii 50))
+  (ends-at uint)
+  (counter uint)
+)
+  (keccak256 (concat
+    (concat
+      (unwrap-panic (to-consensus-buff? question))
+      (unwrap-panic (to-consensus-buff? category))
+    )
+    (concat
+      (unwrap-panic (to-consensus-buff? ends-at))
+      (unwrap-panic (to-consensus-buff? counter))
+    )
+  ))
+)
+
