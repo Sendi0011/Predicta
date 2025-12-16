@@ -102,3 +102,12 @@
   (map-get? creator-markets { creator: tx-sender, index: index })
 )
 
+(define-read-only (get-category-markets (category (string-ascii 50)) (offset uint) (limit uint))
+  (let (
+    (count (get-category-market-count-internal category))
+    (end (if (> (+ offset limit) count) count (+ offset limit)))
+  )
+    (ok count) ;; Simplified - would return array
+  )
+)
+
