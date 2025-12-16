@@ -332,3 +332,12 @@
   )
 )
 
+;; Grant admin role
+(define-public (grant-admin (user principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get admin)) ERR-NOT-AUTHORIZED)
+    (map-set admin-roles user true)
+    (ok true)
+  )
+)
+
