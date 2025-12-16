@@ -212,4 +212,20 @@
       (map-set category-market-count category (+ cat-count u1))
     )
     
+    ;; Update counter
+    (var-set total-markets-created (+ current-count u1))
     
+    (print {
+      event: "market-created",
+      market-address: market-contract,
+      market-id: market-id,
+      creator: tx-sender,
+      question: question,
+      ends-at: ends-at,
+      category: category
+    })
+    
+    (ok { market-address: market-contract, market-id: market-id })
+  )
+)
+
