@@ -311,3 +311,16 @@
   )
 )
 
+;; Update duration limits
+(define-public (update-duration-limits (new-min uint) (new-max uint))
+  (begin
+    (asserts! (is-admin tx-sender) ERR-NOT-AUTHORIZED)
+    (asserts! (< new-min new-max) ERR-INVALID-PARAMS)
+    
+    (var-set min-market-duration new-min)
+    (var-set max-market-duration new-max)
+    
+    (ok true)
+  )
+)
+
