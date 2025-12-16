@@ -390,3 +390,21 @@
   )
 )
 
+;; Emergency cancel market
+(define-public (cancel-market (reason (string-utf8 500)))
+  (begin
+    (asserts! (is-admin tx-sender) ERR-NOT-AUTHORIZED)
+    (asserts! (not (is-eq (var-get current-state) STATE-RESOLVED)) ERR-ALREADY-RESOLVED)
+    (asserts! (not (is-eq (var-get current-state) STATE-CANCELED)) ERR-PAUSED)
+    
+    (var-set current-state STATE-CANCELED)
+    
+    (print {
+      event: "market-canceled",
+      reason: reason
+    })
+    
+    (ok true)
+  )
+)
+
