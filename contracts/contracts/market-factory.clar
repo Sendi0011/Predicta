@@ -267,3 +267,47 @@
   )
 )
 
+;; Update treasury
+(define-public (update-treasury (new-treasury principal))
+  (begin
+    (asserts! (is-admin tx-sender) ERR-NOT-AUTHORIZED)
+    
+    (let ((old-treasury (var-get treasury)))
+      (var-set treasury new-treasury)
+      
+      (print {
+        event: "treasury-updated",
+        old: old-treasury,
+        new: new-treasury
+      })
+      
+      (ok true)
+    )
+  )
+)
+
+;; Update default parameters
+(define-public (update-defaults
+  (new-fee-bp uint)
+  (new-max-stake uint)
+  (new-max-pool uint)
+)
+  (begin
+    (asserts! (is-admin tx-sender) ERR-NOT-AUTHORIZED)
+    (asserts! (<= new-fee-bp u1000) ERR-INVALID-PARAMS)
+    
+    (var-set default-fee-bp new-fee-bp)
+    (var-set default-max-stake-per-user new-max-stake)
+    (var-set default-max-total-pool new-max-pool)
+    
+    (print {
+      event: "defaults-updated",
+      fee-bp: new-fee-bp,
+      max-stake: new-max-stake,
+      max-pool: new-max-pool
+    })
+    
+    (ok true)
+  )
+)
+
