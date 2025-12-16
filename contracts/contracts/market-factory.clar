@@ -189,4 +189,27 @@
       (unwrap-panic (to-utf8 category))
     ))
     
+    ;; Register market
+    (map-set markets market-id market-contract)
+    (map-set is-market market-contract true)
+    (map-set market-counter current-count market-contract)
+    
+    ;; Add to creator's markets
+    (let ((creator-count (get-creator-market-count-internal tx-sender)))
+      (map-set creator-markets 
+        { creator: tx-sender, index: creator-count }
+        market-id
+      )
+      (map-set creator-market-count tx-sender (+ creator-count u1))
+    )
+    
+    ;; Add to category
+    (let ((cat-count (get-category-market-count-internal category)))
+      (map-set category-markets
+        { category: category, index: cat-count }
+        market-id
+      )
+      (map-set category-market-count category (+ cat-count u1))
+    )
+    
     
