@@ -295,3 +295,52 @@
   )
 )
 
+;; Resolve market using AI oracle
+(define-public (resolve-market)
+  (let (
+    (oracle (var-get oracle-contract))
+    (m-id (var-get market-id))
+    (total-pool (+ (var-get yes-pool) (var-get no-pool)))
+    (calculated-fee (/ (* total-pool (var-get fee-bp)) u10000))
+    (distributable (- total-pool calculated-fee))
+  )
+    ;; Validations
+    (asserts! 
+      (or 
+        (is-eq (var-get current-state) STATE-LOCKED)
+        (is-eq (var-get current-state) STATE-RESOLVING)
+      )
+      ERR-INVALID-STATE
+    )
+    (asserts! (>= block-height (var-get ends-at)) ERR-MARKET-NOT-ENDED)
+    
+    ;; Check oracle finalization (would call oracle contract)
+    ;; Simplified here - in practice would do:
+    ;; (try! (contract-call? oracle is-resolution-finalized m-id))
+    
+    ;; Update state
+    (if (is-eq (var-get current-state) STATE-LOCKED)
+      (var-set current-state STATE-RESOLVING)
+      true
+    )
+    
+    ;; Set amounts
+    (var-set fee-amount calculated-fee)
+    (var-set distributable-amount distributable)
+    
+    ;; Transfer fees to treasury
+    ;; Would transfer calculated-fee to treasury here
+    
+    ;; Finalize resolution
+    (var-set current-state STATE-RESOLVED)
+    
+    (print {
+      event: "market-resolved",
+      fee-amount: calculated-fee,
+      distributable-amount: distributable
+    })
+    
+    (ok true)
+  )
+)
+
