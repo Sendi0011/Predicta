@@ -98,3 +98,7 @@
   )
 )
 
+(define-private (get-creator-market-at-index (index uint))
+  (map-get? creator-markets { creator: tx-sender, index: index })
+)
+
