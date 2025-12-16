@@ -149,3 +149,44 @@
   )
 )
 
+;; Create a new prediction market
+(define-public (create-market
+  (question (string-utf8 500))
+  (category (string-ascii 50))
+  (ends-at uint)
+  (custom-fee-bp uint)
+  (custom-max-stake uint)
+  (custom-max-pool uint)
+  (market-contract principal)
+)
+  (let (
+    (duration (- ends-at block-height))
+    (fee-bp (if (> custom-fee-bp u0) custom-fee-bp (var-get default-fee-bp)))
+    (max-stake (if (> custom-max-stake u0) custom-max-stake (var-get default-max-stake-per-user)))
+    (max-pool (if (> custom-max-pool u0) custom-max-pool (var-get default-max-total-pool)))
+    (market-id (hash-market-params question category ends-at (var-get total-markets-created)))
+    (current-count (var-get total-markets-created))
+  )
+    ;; Validations
+    (asserts! (has-creator-role tx-sender) ERR-NOT-AUTHORIZED)
+    (asserts! (>= duration (var-get min-market-duration)) ERR-INVALID-DURATION)
+    (asserts! (<= duration (var-get max-market-duration)) ERR-INVALID-DURATION)
+    (asserts! (<= fee-bp u1000) ERR-INVALID-PARAMS)
+    (asserts! (is-none (map-get? markets market-id)) ERR-MARKET-EXISTS)
+    
+    ;; Initialize market contract
+    (try! (contract-call? market-contract initialize
+      (var-get token-contract)
+      (var-get oracle-contract)
+      (var-get treasury)
+      tx-sender
+      market-id
+      ends-at
+      fee-bp
+      max-stake
+      max-pool
+      question
+      (unwrap-panic (to-utf8 category))
+    ))
+    
+    
