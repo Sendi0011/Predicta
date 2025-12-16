@@ -344,3 +344,49 @@
   )
 )
 
+;; Claim winnings after resolution
+(define-public (claim (token <ft-trait>))
+  (let (
+    (oracle (var-get oracle-contract))
+    (m-id (var-get market-id))
+    ;; Would get winning side from oracle
+    (winning-side SIDE-YES) ;; Simplified - would call oracle
+    (winning-pool (if (is-eq winning-side SIDE-YES) 
+                    (var-get yes-pool) 
+                    (var-get no-pool)))
+    (user-stake (get-user-stake tx-sender winning-side))
+    (distributable (var-get distributable-amount))
+  )
+    ;; Validations
+    (asserts! (is-eq (var-get current-state) STATE-RESOLVED) ERR-NOT-RESOLVED)
+    (asserts! (not (has-claimed tx-sender)) ERR-ALREADY-CLAIMED)
+    (asserts! (> user-stake u0) ERR-NO-STAKE)
+    (asserts! (> winning-pool u0) ERR-NO-STAKE)
+    
+    ;; Calculate payout
+    (let ((payout (/ (* user-stake distributable) winning-pool)))
+      
+      ;; Mark as claimed
+      (map-set claimed tx-sender true)
+      
+      ;; Burn position tokens
+      (try! (burn-position-token 
+        tx-sender 
+        (if (is-eq winning-side SIDE-YES) u1 u2)
+        user-stake
+      ))
+      
+      ;; Transfer payout
+      (try! (as-contract (contract-call? token transfer payout tx-sender tx-sender none)))
+      
+      (print {
+        event: "claimed",
+        user: tx-sender,
+        payout: payout
+      })
+      
+      (ok payout)
+    )
+  )
+)
+
