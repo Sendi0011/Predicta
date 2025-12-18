@@ -40,8 +40,12 @@ import {
    * Initialize Chainhook Client
    */
   export function createChainhookClient() {
-    return new ChainhooksClient(CHAINHOOK_CONFIG.baseUrl);
+    return new ChainhooksClient({
+      baseUrl: CHAINHOOK_CONFIG.baseUrl,
+      authToken: CHAINHOOK_CONFIG.authToken,
+    });
   }
+  
   
   /**
    * Predicate for Market Creation Events
