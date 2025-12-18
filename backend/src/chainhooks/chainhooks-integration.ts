@@ -5,18 +5,20 @@
  */
 
 import { 
-    ChainhookClient, 
-    ServerOptions,
-    StacksChainEvent,
-    Predicate
+    ChainhooksClient,
+    StacksEvent,
+    StacksPredicate
   } from '@hirosystems/chainhooks-client';
   
   // Configuration
-  const CHAINHOOK_CONFIG: ServerOptions = {
-    hostname: 'localhost',
-    port: 3000,
-    nodeAuthToken: process.env.CHAINHOOK_AUTH_TOKEN || '',
-    externalBaseUrl: process.env.EXTERNAL_BASE_URL || 'http://localhost:3000'
+  interface ChainhookConfig {
+    baseUrl: string;
+    authToken?: string;
+  }
+  
+  const CHAINHOOK_CONFIG: ChainhookConfig = {
+    baseUrl: process.env.CHAINHOOK_BASE_URL || 'http://localhost:20456',
+    authToken: process.env.CHAINHOOK_AUTH_TOKEN
   };
   
   // Contract addresses (update with your deployed contracts)
@@ -30,28 +32,27 @@ import {
    * Initialize Chainhook Client
    */
   export function createChainhookClient() {
-    return new ChainhookClient(CHAINHOOK_CONFIG);
+    return new ChainhooksClient(CHAINHOOK_CONFIG.baseUrl);
   }
   
   /**
    * Predicate for Market Creation Events
    * Triggers when a new market is created
    */
-  export const marketCreationPredicate: Predicate = {
+  export const marketCreationPredicate: StacksPredicate = {
     uuid: 'prediction-market-creation',
     name: 'Market Creation Monitor',
     version: 1,
-    chain: 'stacks',
     networks: {
       testnet: {
-        if_this: {
+        'if_this': {
           scope: 'print_event',
           contract_identifier: CONTRACTS.factory,
           contains: 'market-created'
         },
-        then_that: {
+        'then_that': {
           http_post: {
-            url: `${CHAINHOOK_CONFIG.externalBaseUrl}/webhooks/market-created`,
+            url: `${process.env.EXTERNAL_BASE_URL}/webhooks/market-created`,
             authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
           }
         },
@@ -64,21 +65,20 @@ import {
    * Predicate for Market Locked Events
    * Triggers when market ends and gets locked
    */
-  export const marketLockedPredicate: Predicate = {
+  export const marketLockedPredicate: StacksPredicate = {
     uuid: 'prediction-market-locked',
     name: 'Market Locked Monitor',
     version: 1,
-    chain: 'stacks',
     networks: {
       testnet: {
-        if_this: {
+        'if_this': {
           scope: 'print_event',
           contract_identifier: CONTRACTS.market,
           contains: 'market-locked'
         },
-        then_that: {
+        'then_that': {
           http_post: {
-            url: `${CHAINHOOK_CONFIG.externalBaseUrl}/webhooks/market-locked`,
+            url: `${process.env.EXTERNAL_BASE_URL}/webhooks/market-locked`,
             authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
           }
         },
@@ -91,21 +91,20 @@ import {
    * Predicate for Stake Events
    * Monitors all staking activity for analytics
    */
-  export const stakingPredicate: Predicate = {
+  export const stakingPredicate: StacksPredicate = {
     uuid: 'prediction-market-staking',
     name: 'Staking Activity Monitor',
     version: 1,
-    chain: 'stacks',
     networks: {
       testnet: {
-        if_this: {
+        'if_this': {
           scope: 'print_event',
           contract_identifier: CONTRACTS.market,
           contains: 'staked'
         },
-        then_that: {
+        'then_that': {
           http_post: {
-            url: `${CHAINHOOK_CONFIG.externalBaseUrl}/webhooks/staking-activity`,
+            url: `${process.env.EXTERNAL_BASE_URL}/webhooks/staking-activity`,
             authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
           }
         },
@@ -118,21 +117,20 @@ import {
    * Predicate for Resolution Proposals
    * Triggers when AI submits a resolution
    */
-  export const resolutionProposedPredicate: Predicate = {
+  export const resolutionProposedPredicate: StacksPredicate = {
     uuid: 'prediction-resolution-proposed',
     name: 'Resolution Proposed Monitor',
     version: 1,
-    chain: 'stacks',
     networks: {
       testnet: {
-        if_this: {
+        'if_this': {
           scope: 'print_event',
           contract_identifier: CONTRACTS.oracle,
           contains: 'resolution-proposed'
         },
-        then_that: {
+        'then_that': {
           http_post: {
-            url: `${CHAINHOOK_CONFIG.externalBaseUrl}/webhooks/resolution-proposed`,
+            url: `${process.env.EXTERNAL_BASE_URL}/webhooks/resolution-proposed`,
             authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
           }
         },
@@ -145,21 +143,20 @@ import {
    * Predicate for Resolution Challenges
    * Monitors challenge events during the challenge period
    */
-  export const resolutionChallengedPredicate: Predicate = {
+  export const resolutionChallengedPredicate: StacksPredicate = {
     uuid: 'prediction-resolution-challenged',
     name: 'Resolution Challenge Monitor',
     version: 1,
-    chain: 'stacks',
     networks: {
       testnet: {
-        if_this: {
+        'if_this': {
           scope: 'print_event',
           contract_identifier: CONTRACTS.oracle,
           contains: 'resolution-challenged'
         },
-        then_that: {
+        'then_that': {
           http_post: {
-            url: `${CHAINHOOK_CONFIG.externalBaseUrl}/webhooks/resolution-challenged`,
+            url: `${process.env.EXTERNAL_BASE_URL}/webhooks/resolution-challenged`,
             authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
           }
         },
@@ -171,7 +168,7 @@ import {
   /**
    * Register all predicates with the Chainhook server
    */
-  export async function registerAllPredicates(client: ChainhookClient) {
+  export async function registerAllPredicates(client: ChainhooksClient) {
     const predicates = [
       marketCreationPredicate,
       marketLockedPredicate,
@@ -182,7 +179,7 @@ import {
   
     for (const predicate of predicates) {
       try {
-        await client.createPredicate(predicate);
+        await client.createPredicate(predicate as any);
         console.log(`✓ Registered predicate: ${predicate.name}`);
       } catch (error) {
         console.error(`✗ Failed to register ${predicate.name}:`, error);
@@ -230,19 +227,15 @@ import {
   /**
    * Parse Stacks event data
    */
-  export function parseStacksEvent<T>(event: StacksChainEvent): T | null {
+  export function parseStacksEvent<T>(event: StacksEvent): T | null {
     try {
-      // Extract print event data
-      const printEvent = event.apply.find(
-        apply => apply.type === 'FTPrintEvent' || apply.type === 'NFTPrintEvent'
-      );
-      
-      if (!printEvent || !printEvent.data) {
+      // Extract print event data from StacksEvent
+      if (!event || !event.data) {
         return null;
       }
   
       // Parse the event data
-      return JSON.parse(printEvent.data) as T;
+      return event.data as T;
     } catch (error) {
       console.error('Failed to parse event:', error);
       return null;
@@ -253,7 +246,7 @@ import {
    * Example: Handle Market Locked Event to Trigger AI Resolution
    */
   export async function handleMarketLocked(
-    event: StacksChainEvent,
+    event: StacksEvent,
     aiResolverService: AIResolverService
   ) {
     const data = parseStacksEvent<MarketLockedEvent>(event);
