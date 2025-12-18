@@ -51,7 +51,7 @@ import {
    * Predicate for Market Creation Events
    * Triggers when a new market is created
    */
-  export const marketCreationPredicate: StacksPredicate = {
+  export const marketCreationPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-market-creation',
     name: 'Market Creation Monitor',
     version: 1,
@@ -77,7 +77,7 @@ import {
    * Predicate for Market Locked Events
    * Triggers when market ends and gets locked
    */
-  export const marketLockedPredicate: StacksPredicate = {
+  export const marketLockedPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-market-locked',
     name: 'Market Locked Monitor',
     version: 1,
@@ -103,7 +103,7 @@ import {
    * Predicate for Stake Events
    * Monitors all staking activity for analytics
    */
-  export const stakingPredicate: StacksPredicate = {
+  export const stakingPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-market-staking',
     name: 'Staking Activity Monitor',
     version: 1,
@@ -129,7 +129,7 @@ import {
    * Predicate for Resolution Proposals
    * Triggers when AI submits a resolution
    */
-  export const resolutionProposedPredicate: StacksPredicate = {
+  export const resolutionProposedPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-resolution-proposed',
     name: 'Resolution Proposed Monitor',
     version: 1,
@@ -155,7 +155,7 @@ import {
    * Predicate for Resolution Challenges
    * Monitors challenge events during the challenge period
    */
-  export const resolutionChallengedPredicate: StacksPredicate = {
+  export const resolutionChallengedPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-resolution-challenged',
     name: 'Resolution Challenge Monitor',
     version: 1,
