@@ -10,6 +10,14 @@ import {
   } from '@hirosystems/chainhooks-client';
   
   
+  type StacksChainhookPredicate = {
+    uuid: string;
+    name: string;
+    version: number;
+    networks: Record<string, any>;
+  };
+  
+
   // Configuration
   interface ChainhookConfig {
     baseUrl: string;
