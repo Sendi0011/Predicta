@@ -8,5 +8,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@hirosystems/chainhooks-client": "^1.0.0",
+    "@stacks/transactions": "^7.3.1",
+    "express": "^5.2.1"
+  }
 }
