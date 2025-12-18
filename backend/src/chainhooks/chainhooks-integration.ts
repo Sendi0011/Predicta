@@ -9,6 +9,9 @@ import {
     StacksEvent,
   } from '@hirosystems/chainhooks-client';
   
+  /* -------------------------------------------------------------------------- */
+  /*                                   Types                                    */
+  /* -------------------------------------------------------------------------- */
   
   type StacksChainhookPredicate = {
     uuid: string;
@@ -24,21 +27,32 @@ import {
     authToken?: string;
   }
   
+  /* -------------------------------------------------------------------------- */
+  /*                               Configuration                                */
+  /* -------------------------------------------------------------------------- */
+  
   const CHAINHOOK_CONFIG: ChainhookConfig = {
     baseUrl: process.env.CHAINHOOK_BASE_URL || 'http://localhost:20456',
-    authToken: process.env.CHAINHOOK_AUTH_TOKEN
+    authToken: process.env.CHAINHOOK_AUTH_TOKEN,
   };
   
   // Contract addresses (update with your deployed contracts)
   const CONTRACTS = {
-    market: process.env.MARKET_CONTRACT || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.market',
-    oracle: process.env.ORACLE_CONTRACT || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.ai-oracle',
-    factory: process.env.FACTORY_CONTRACT || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.market-factory'
+    market:
+      process.env.MARKET_CONTRACT ||
+      'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.market',
+    oracle:
+      process.env.ORACLE_CONTRACT ||
+      'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.ai-oracle',
+    factory:
+      process.env.FACTORY_CONTRACT ||
+      'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.market-factory',
   };
   
-  /**
-   * Initialize Chainhook Client
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                           Chainhooks Client Init                            */
+  /* -------------------------------------------------------------------------- */
+  
   export function createChainhookClient() {
     return new ChainhooksClient({
       baseUrl: CHAINHOOK_CONFIG.baseUrl,
@@ -46,6 +60,9 @@ import {
     });
   }
   
+  /* -------------------------------------------------------------------------- */
+  /*                                Predicates                                  */
+  /* -------------------------------------------------------------------------- */
   
   /**
    * Predicate for Market Creation Events
@@ -57,98 +74,86 @@ import {
     version: 1,
     networks: {
       testnet: {
-        'if_this': {
+        if_this: {
           scope: 'print_event',
           contract_identifier: CONTRACTS.factory,
-          contains: 'market-created'
+          contains: 'market-created',
         },
-        'then_that': {
+        then_that: {
           http_post: {
             url: `${process.env.EXTERNAL_BASE_URL}/webhooks/market-created`,
-            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
-          }
+            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`,
+          },
         },
-        start_block: 0
-      }
-    }
+        start_block: 0,
+      },
+    },
   };
   
-  /**
-   * Predicate for Market Locked Events
-   * Triggers when market ends and gets locked
-   */
   export const marketLockedPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-market-locked',
     name: 'Market Locked Monitor',
     version: 1,
     networks: {
       testnet: {
-        'if_this': {
+        if_this: {
           scope: 'print_event',
           contract_identifier: CONTRACTS.market,
-          contains: 'market-locked'
+          contains: 'market-locked',
         },
-        'then_that': {
+        then_that: {
           http_post: {
             url: `${process.env.EXTERNAL_BASE_URL}/webhooks/market-locked`,
-            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
-          }
+            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`,
+          },
         },
-        start_block: 0
-      }
-    }
+        start_block: 0,
+      },
+    },
   };
   
-  /**
-   * Predicate for Stake Events
-   * Monitors all staking activity for analytics
-   */
   export const stakingPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-market-staking',
     name: 'Staking Activity Monitor',
     version: 1,
     networks: {
       testnet: {
-        'if_this': {
+        if_this: {
           scope: 'print_event',
           contract_identifier: CONTRACTS.market,
-          contains: 'staked'
+          contains: 'staked',
         },
-        'then_that': {
+        then_that: {
           http_post: {
             url: `${process.env.EXTERNAL_BASE_URL}/webhooks/staking-activity`,
-            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
-          }
+            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`,
+          },
         },
-        start_block: 0
-      }
-    }
+        start_block: 0,
+      },
+    },
   };
   
-  /**
-   * Predicate for Resolution Proposals
-   * Triggers when AI submits a resolution
-   */
   export const resolutionProposedPredicate: StacksChainhookPredicate = {
     uuid: 'prediction-resolution-proposed',
     name: 'Resolution Proposed Monitor',
     version: 1,
     networks: {
       testnet: {
-        'if_this': {
+        if_this: {
           scope: 'print_event',
           contract_identifier: CONTRACTS.oracle,
-          contains: 'resolution-proposed'
+          contains: 'resolution-proposed',
         },
-        'then_that': {
+        then_that: {
           http_post: {
             url: `${process.env.EXTERNAL_BASE_URL}/webhooks/resolution-proposed`,
-            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
-          }
+            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`,
+          },
         },
-        start_block: 0
-      }
-    }
+        start_block: 0,
+      },
+    },
   };
   
   /**
@@ -161,37 +166,38 @@ import {
     version: 1,
     networks: {
       testnet: {
-        'if_this': {
+        if_this: {
           scope: 'print_event',
           contract_identifier: CONTRACTS.oracle,
-          contains: 'resolution-challenged'
+          contains: 'resolution-challenged',
         },
-        'then_that': {
+        then_that: {
           http_post: {
             url: `${process.env.EXTERNAL_BASE_URL}/webhooks/resolution-challenged`,
-            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`
-          }
+            authorization_header: `Bearer ${process.env.WEBHOOK_SECRET}`,
+          },
         },
-        start_block: 0
-      }
-    }
+        start_block: 0,
+      },
+    },
   };
   
-  /**
-   * Register all predicates with the Chainhook server
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                         Predicate Registration                              */
+  /* -------------------------------------------------------------------------- */
+  
   export async function registerAllPredicates(client: ChainhooksClient) {
     const predicates = [
       marketCreationPredicate,
       marketLockedPredicate,
       stakingPredicate,
       resolutionProposedPredicate,
-      resolutionChallengedPredicate
+      resolutionChallengedPredicate,
     ];
   
     for (const predicate of predicates) {
       try {
-        await client.createPredicate(predicate as any);
+        await client.registerPredicate(predicate);
         console.log(`✓ Registered predicate: ${predicate.name}`);
       } catch (error) {
         console.error(`✗ Failed to register ${predicate.name}:`, error);
@@ -199,9 +205,10 @@ import {
     }
   }
   
-  /**
-   * Event Handler Types
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                              Event Types                                   */
+  /* -------------------------------------------------------------------------- */
+  
   export interface MarketCreatedEvent {
     'market-address': string;
     'market-id': string;
@@ -236,78 +243,67 @@ import {
     reason: string;
   }
   
-  /**
-   * Parse Stacks event data
-   */
-  export function parseStacksEvent<T>(event: StacksEvent): T | null {
-    try {
-      // Extract print event data from StacksEvent
-      if (!event || !event.data) {
-        return null;
-      }
+  /* -------------------------------------------------------------------------- */
+  /*                          Event Parsing Helper                               */
+  /* -------------------------------------------------------------------------- */
   
-      // Parse the event data
-      return event.data as T;
-    } catch (error) {
-      console.error('Failed to parse event:', error);
-      return null;
-    }
+  export function parseStacksEvent<T>(event: StacksEvent): T | null {
+    if (event.type !== 'print_event') return null;
+  
+    const value = (event as any).value;
+    if (!value) return null;
+  
+    return value as T;
   }
   
-  /**
-   * Example: Handle Market Locked Event to Trigger AI Resolution
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                      Example Market Locked Handler                          */
+  /* -------------------------------------------------------------------------- */
+  
   export async function handleMarketLocked(
     event: StacksEvent,
     aiResolverService: AIResolverService
   ) {
     const data = parseStacksEvent<MarketLockedEvent>(event);
-    
+  
     if (!data) {
       console.error('Failed to parse market locked event');
       return;
     }
   
-    console.log(`Market ${data['market-id']} locked at block ${data.timestamp}`);
-    
-    // Trigger AI resolution process
+    console.log(`Market ${data['market-id']} locked at ${data.timestamp}`);
+  
     try {
       await aiResolverService.resolveMarket(data['market-id']);
-      console.log(`✓ AI resolution initiated for market ${data['market-id']}`);
+      console.log(`✓ AI resolution initiated`);
     } catch (error) {
-      console.error(`✗ Failed to resolve market ${data['market-id']}:`, error);
+      console.error(`✗ Resolution failed`, error);
     }
   }
   
-  /**
-   * Mock AI Resolver Service Interface
-   * Replace with your actual AI resolution logic
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                         AI Resolver Interface                               */
+  /* -------------------------------------------------------------------------- */
+  
   interface AIResolverService {
     resolveMarket(marketId: string): Promise<void>;
   }
   
-  /**
-   * Example AI Resolver Implementation
-   */
-  export class ExampleAIResolver implements AIResolverService {
-    private oracleContract: string;
-    private privateKey: string;
+  /* -------------------------------------------------------------------------- */
+  /*                      Example AI Resolver Implementation                     */
+  /* -------------------------------------------------------------------------- */
   
-    constructor(oracleContract: string, privateKey: string) {
-      this.oracleContract = oracleContract;
-      this.privateKey = privateKey;
-    }
+  export class ExampleAIResolver implements AIResolverService {
+    constructor(
+      private oracleContract: string,
+      private privateKey: string
+    ) {}
   
     async resolveMarket(marketId: string): Promise<void> {
       // 1. Fetch market metadata
       const marketData = await this.fetchMarketData(marketId);
-      
-      // 2. Use AI to analyze and determine outcome
-      const aiResult = await this.analyzeWithAI(marketData);
-      
-      // 3. Submit resolution to oracle contract
-      await this.submitResolution(marketId, aiResult);
+      const result = await this.analyzeWithAI(marketData);
+      await this.submitResolution(marketId, result);
     }
   
     private async fetchMarketData(marketId: string) {
@@ -315,44 +311,44 @@ import {
       return {
         question: 'Will Bitcoin reach $100k in 2024?',
         category: 'Crypto',
-        sources: []
+        sources: [],
       };
     }
   
-    private async analyzeWithAI(marketData: any): Promise<number> {
-      // Call your AI service (OpenAI, Claude, custom model, etc.)
-      // Return 1 for YES, 2 for NO
-      return 1; // Example
+    private async analyzeWithAI(_marketData: any): Promise<number> {
+      return 1; // YES
     }
   
     private async submitResolution(marketId: string, result: number) {
-      // Submit transaction to oracle contract
-      // This would use @stacks/transactions
-      console.log(`Submitting resolution: ${marketId} = ${result}`);
+      console.log(`Submitting resolution: ${marketId} => ${result}`);
     }
   }
   
-  /**
-   * Main initialization function
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                              Initialization                                */
+  /* -------------------------------------------------------------------------- */
+  
   export async function initializeChainhooks() {
     const client = createChainhookClient();
-    
+  
     console.log('Initializing Chainhooks...');
     
     // Register all predicates
     await registerAllPredicates(client);
-    
-    console.log('✓ Chainhooks initialized successfully');
-    
+    console.log('✓ Chainhooks initialized');
+  
     return client;
   }
   
-  // Export for use in your application
+  /* -------------------------------------------------------------------------- */
+  /*                                   Export                                   */
+  /* -------------------------------------------------------------------------- */
+  
   export default {
     createChainhookClient,
     registerAllPredicates,
     parseStacksEvent,
     handleMarketLocked,
-    ExampleAIResolver
+    ExampleAIResolver,
   };
+  
