@@ -4,11 +4,11 @@
  * Uses @hirosystems/chainhooks-client
  */
 
-import { 
+import {
     ChainhooksClient,
     StacksEvent,
-    StacksPredicate
   } from '@hirosystems/chainhooks-client';
+  
   
   // Configuration
   interface ChainhookConfig {
