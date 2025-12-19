@@ -11,7 +11,13 @@ import {
     AnchorMode,
     PostConditionMode
   } from '@stacks/transactions';
-  import { StacksTestnet, StacksMainnet } from '@stacks/network';
+  import { STACKS_TESTNET, STACKS_MAINNET } from '@stacks/network';
+
+const network =
+  process.env.STACKS_NETWORK === 'mainnet'
+    ? STACKS_MAINNET
+    : STACKS_TESTNET;
+
   import Anthropic from '@anthropic-ai/sdk';
   import OpenAI from 'openai';
   
@@ -40,7 +46,7 @@ import {
   type AIProvider = 'anthropic' | 'openai' | 'custom';
   
   export class AIResolutionService {
-    private network: StacksTestnet | StacksMainnet;
+    private network: typeof STACKS_TESTNET | typeof STACKS_MAINNET;
     private oracleContract: string;
     private privateKey: string;
     private aiProvider: AIProvider;
@@ -53,7 +59,10 @@ import {
       networkType: 'testnet' | 'mainnet' = 'testnet',
       aiProvider: AIProvider = 'anthropic'
     ) {
-      this.network = networkType === 'mainnet' ? new StacksMainnet() : new StacksTestnet();
+        this.network =
+        networkType === 'mainnet'
+          ? STACKS_MAINNET
+          : STACKS_TESTNET;      
       this.oracleContract = oracleContract;
       this.privateKey = privateKey;
       this.aiProvider = aiProvider;
@@ -458,10 +467,11 @@ import {
      * Get block explorer URL
      */
     private getExplorerUrl(txid: string): string {
-      const baseUrl = this.network instanceof StacksMainnet
-        ? 'https://explorer.hiro.so'
-        : 'https://explorer.hiro.so/?chain=testnet';
-      
+        const baseUrl =
+        this.network === STACKS_MAINNET
+          ? 'https://explorer.hiro.so'
+          : 'https://explorer.hiro.so/?chain=testnet';      
+          
       return `${baseUrl}/txid/${txid}`;
     }
   
