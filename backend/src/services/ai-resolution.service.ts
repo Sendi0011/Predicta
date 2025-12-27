@@ -414,14 +414,7 @@ const network =
       // Store in your database for tracking
       console.log('💾 Storing resolution data...');
       
-      // In production, save to PostgreSQL/MongoDB:
-      // - marketId
-      // - outcome
-      // - confidence
-      // - reasoning
-      // - sources
-      // - txid
-      // - timestamp
+      
     }
   
     /**
