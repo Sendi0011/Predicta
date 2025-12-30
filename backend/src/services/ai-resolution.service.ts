@@ -160,11 +160,7 @@ const network =
       data: string;
     }> {
       try {
-        // In production, you'd:
-        // 1. Scrape the provided sources
-        // 2. Use news APIs (NewsAPI, Google News, etc.)
-        // 3. Query financial data APIs
-        // 4. Check blockchain data if relevant
+        
   
         const evidenceData = await this.searchRelevantData(marketData.question, marketData.sources);
   
@@ -186,11 +182,7 @@ const network =
      * Search for relevant data using web search or APIs
      */
     private async searchRelevantData(question: string, sources: string[]): Promise<string> {
-      // This is where you'd integrate:
-      // - Web scraping
-      // - News APIs
-      // - Financial data APIs
-      // - Blockchain explorers
+      
       
       // Mock implementation
       return `
